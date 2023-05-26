@@ -12,11 +12,13 @@ const BlogForm = ({ editing }) => {
   const { id } = useParams();
 
   useEffect(() => {
-    axios.get(`http://localhost:3001/posts/${id}`).then((response) => {
-      setTitle(response.data.title);
-      setText(response.data.text);
-    })
-  }, [id]);
+    if(editing) {
+      axios.get(`http://localhost:3001/posts/${id}`).then((response) => {
+        setTitle(response.data.title);
+        setText(response.data.text);
+      })
+    }
+  }, [id, editing]);
 
   const onSubmit = () => {
     if(editing) {
