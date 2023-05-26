@@ -8,17 +8,33 @@ const BlogForm = ({ editing }) => {
 
   const history = useHistory();
   const [title, setTitle] = useState("");
+  const [originalTitle, setOriginalTitle] = useState("");
   const [text, setText] = useState("");
+  const [originalText, setOriginalText] = useState("");
   const { id } = useParams();
 
   useEffect(() => {
     if(editing) {
       axios.get(`http://localhost:3001/posts/${id}`).then((response) => {
         setTitle(response.data.title);
+        setOriginalTitle(response.data.title);
         setText(response.data.text);
+        setOriginalText(response.data.text);
       })
     }
   }, [id, editing]);
+
+  const isEdited = () => {
+    return title !== originalTitle || text !== originalText;
+  }
+
+  const goBack = () => {
+    if (editing) {
+      history.push(`/blogs/${id}`)
+    } else {
+      history.push("/blogs")
+    }
+  }
 
   const onSubmit = () => {
     if(editing) {
@@ -27,6 +43,7 @@ const BlogForm = ({ editing }) => {
         text
       }).then(response => {
         console.log(response);
+        history.push(`/blogs/${id}`)
       })
     } else {
       axios.post("http://localhost:3001/posts", {
@@ -54,7 +71,8 @@ const BlogForm = ({ editing }) => {
           setText(e.target.value)
         }}></textarea>
       </div>
-      <button onClick={onSubmit} className="btn btn-primary">{editing ? 'Edit' : 'post'}</button>
+      <button onClick={onSubmit} className="btn btn-primary" disabled={editing && !isEdited()}>{editing ? 'Edit' : 'post'}</button>
+      <button onClick={goBack} className="btn btn-danger ms-2">Cancel</button>
     </div>
   )
 }
@@ -68,3 +86,4 @@ BlogForm.defaultProps = {
 }
 
 export default BlogForm;
+
