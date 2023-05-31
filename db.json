@@ -1,20 +1,15 @@
 {
   "posts": [
     {
-      "title": "수정",
-      "text": "수정",
-      "createAt": 1685070486719,
-      "id": 1
-    },
-    {
       "title": "ㅇㅎㄶ",
       "text": "ㄴㅇㅎㄴㅇㅎ",
       "createAt": 1685070578005,
-      "id": 2
+      "id": 2,
+      "publish": true
     },
     {
-      "title": "ㅇㅇㅂㅈ",
-      "text": "ㅈㅈㅂㅈ",
+      "title": "다라",
+      "text": "가나",
       "createAt": 1685070817929,
       "id": 3
     },
@@ -23,6 +18,20 @@
       "text": "4",
       "createAt": 1685078710756,
       "id": 4
+    },
+    {
+      "title": "rer",
+      "text": "rer",
+      "publish": true,
+      "createAt": 1685510678110,
+      "id": 5
+    },
+    {
+      "title": "ㅇㅇㅇ",
+      "text": "ㅇㅇㅇ",
+      "publish": false,
+      "createAt": 1685521669749,
+      "id": 6
     }
   ]
 }

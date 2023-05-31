@@ -3,11 +3,9 @@ import propTypes from 'prop-types';
 const Card = ({ title, onClick, children }) => {
   return (
     <div className="card mb-3 cursor-pointer" onClick={onClick}>
-      <div className="card-body">
-        <div className="d-flex justify-content-between">
-          <div>{title}</div>
-          {children && <div>{children}</div>}
-        </div>
+      <div className="card-body py-2 d-flex align-item-center">
+        <div className='flex-grow-1'>{title}</div>
+        {children && <div>{children}</div>}
       </div>
     </div>
   )
@@ -16,12 +14,12 @@ const Card = ({ title, onClick, children }) => {
 Card.propTypes = {
   title: propTypes.string.isRequired,
   children: propTypes.element,
-  onclick: propTypes.func,
+  onClick: propTypes.func,
 };
 
 Card.defaultProps = {
   children: null,
-  onclick: () => {},
+  onClick: () => {},
 }
 
 export default Card;
