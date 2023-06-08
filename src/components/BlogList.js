@@ -1,11 +1,14 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Card from "../components/Card";
 import { useHistory } from "react-router";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { bool } from "prop-types";
 import Pagination from "./Pagination";
 import { useLocation } from "react-router-dom";
+import propTypes from 'prop-types';
+import Toast from "../components/Toast";
+import { v4 as uuidv4 } from 'uuid';
 
 const BlogList = ({ isAdmin }) => {
   const history = useHistory();
@@ -17,6 +20,8 @@ const BlogList = ({ isAdmin }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [numberOfPosts, setNumberOfPosts] = useState(0);
   const [numberOfPages, setNumberOfPages] = useState(0);
+  const [searchText, setSearchText] = useState('');
+  const [toasts, setToasts] = useState([]);
   const limit = 5;
 
   useEffect(() => {
@@ -25,55 +30,69 @@ const BlogList = ({ isAdmin }) => {
 
   const onClickPageButton = (page) => {
     history.push(`${location.pathname}?page=${page}`);
+    setCurrentPage(page);
+    getPosts(page);
   }
 
-  const getPosts = (page = 1) => {
-    let params = {
-      _page: page,
-      _limit: limit,
-      _sort: 'id',
-      _order: 'desc',
-      // publish: true,
-    }
-
-    if(!isAdmin) {
-      params = {...params, publish: true};
-    }
-
-    axios.get(`http://localhost:3001/posts`, {
-      params,
-    })
-      .then((response) => {
-        setNumberOfPosts(response.headers['x-total-count']);
-        setPosts(response.data);
-        setLoading(false);
+  const getPosts = useCallback((page = 1) => {
+      let params = {
+        _page: page,
+        _limit: limit,
+        _sort: 'id',
+        _order: 'desc',
+        title_like: searchText
+      }
+  
+      if(!isAdmin) {
+        params = {...params, publish: true};
+      }
+  
+      axios.get(`http://localhost:3001/posts`, {
+        params,
       })
-  }
+        .then((response) => {
+          setNumberOfPosts(response.headers['x-total-count']);
+          setPosts(response.data);
+          setLoading(false);
+        })
+    }, [isAdmin, searchText])
 
   useEffect(() => {
     setCurrentPage(parseInt(pageParam) || 1);
-    getPosts(parseInt(pageParam) || 1)
-  }, [pageParam])
+    getPosts(parseInt(pageParam) || 1);
+  }, [])
+
+  const addToast = (toast) => {
+    const toastWithId = {
+      ...toast,
+      id: uuidv4()
+    }
+    setToasts(prev => [...prev, toastWithId]);
+  }
+
+  const deleteToast = (id) => {
+    const filteredToasts = toasts.filter(toast => {
+      return toast.id !== id;
+    })
+
+    setToasts(filteredToasts);
+  }
 
   const deleteBlog = (e, id) => {
     e.stopPropagation(); 
     axios.delete(`http://localhost:3001/posts/${id}`).then(() => {
       setPosts(prevPosts => prevPosts.filter( post => post.id !== id ) )
+      addToast({
+        text: 'Successfully deleted',
+        type: 'success'
+      });
     })
   }
-
-  useEffect(() => {
-    getPosts();
-  }, [])
 
   if (loading) {
     return (
       <LoadingSpinner />
     );
-  }
-
-  if(posts.length === 0) {
-    return (<div>No Blog Posts Found</div>)
   }
 
   const renderBlogList = () => {
@@ -88,16 +107,32 @@ const BlogList = ({ isAdmin }) => {
     })
   }
 
+  const onSearch = (e) => {
+    if(e.key === 'Enter') {
+      history.push(`${location.pathname}?page=1`);
+      setCurrentPage(1);
+      getPosts(1);
+    }
+  }
+
   return (
     <div>
-      {renderBlogList()}
-      {numberOfPages > 1 && <Pagination currentPage={currentPage} numberOfPages={numberOfPages} onClick={onClickPageButton}></Pagination>}
+      <Toast toasts={toasts} deleteToast={deleteToast} />
+      <input type="text" placeholder="Search" className="form-control" value={searchText} onChange={(e) => setSearchText(e.target.value)} onKeyUp={onSearch} />
+      <hr />
+      {posts.length === 0 ? <div>No Blog Posts Found</div> :
+        <>
+          {renderBlogList()}
+          {numberOfPages > 1 && <Pagination currentPage={currentPage} numberOfPages={numberOfPages} onClick={onClickPageButton}></Pagination>} 
+        </>
+      }
+      
     </div>
   )
 }
 
 BlogList.propTypes = {
-  isAdmin: bool
+  isAdmin: propTypes.bool
 };
 
 BlogList.defaultProps = {
