@@ -8,9 +8,10 @@ import Pagination from "./Pagination";
 import { useLocation } from "react-router-dom";
 import propTypes from 'prop-types';
 import Toast from "../components/Toast";
-import { v4 as uuidv4 } from 'uuid';
+import useToast from "../hooks/toasts";
 
 const BlogList = ({ isAdmin }) => {
+  const [toasts, addToast, deleteToast] = useToast();
   const history = useHistory();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -21,7 +22,6 @@ const BlogList = ({ isAdmin }) => {
   const [numberOfPosts, setNumberOfPosts] = useState(0);
   const [numberOfPages, setNumberOfPages] = useState(0);
   const [searchText, setSearchText] = useState('');
-  const [toasts, setToasts] = useState([]);
   const limit = 5;
 
   useEffect(() => {
@@ -61,22 +61,6 @@ const BlogList = ({ isAdmin }) => {
     setCurrentPage(parseInt(pageParam) || 1);
     getPosts(parseInt(pageParam) || 1);
   }, [])
-
-  const addToast = (toast) => {
-    const toastWithId = {
-      ...toast,
-      id: uuidv4()
-    }
-    setToasts(prev => [...prev, toastWithId]);
-  }
-
-  const deleteToast = (id) => {
-    const filteredToasts = toasts.filter(toast => {
-      return toast.id !== id;
-    })
-
-    setToasts(filteredToasts);
-  }
 
   const deleteBlog = (e, id) => {
     e.stopPropagation(); 

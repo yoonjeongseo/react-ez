@@ -4,11 +4,14 @@ import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
 import { bool } from "prop-types";
 import propTypes from 'prop-types';
+// import Toast from "../components/Toast";
+// import useToast from "../hooks/toasts";
 
-
-const BlogForm = ({ editing }) => {
-
+const BlogForm = ({ editing, addToast }) => {
+  // const [toasts, addToast, deleteToast] = useToast();
   const history = useHistory();
+  const { id } = useParams();
+
   const [title, setTitle] = useState("");
   const [originalTitle, setOriginalTitle] = useState("");
   const [text, setText] = useState("");
@@ -17,7 +20,6 @@ const BlogForm = ({ editing }) => {
   const [originalPublish, setOriginalPublish] = useState();
   const [titleError, setTitleError] = useState(false);
   const [textError, setTextError] = useState(false);
-  const { id } = useParams();
 
   useEffect(() => {
     if(editing) {
@@ -60,6 +62,7 @@ const BlogForm = ({ editing }) => {
     return validated;
   }
 
+
   const onSubmit = () => {
     setTitleError(false);
     setTextError(false);
@@ -81,6 +84,11 @@ const BlogForm = ({ editing }) => {
           publish: publish,
           createAt: Date.now()
         }).then(() => {
+          //블로그 생성 성공
+          addToast({
+            text: 'Successfully created!',
+            type: 'success'
+          })
           history.push("/admin");
         })
       }
@@ -94,6 +102,7 @@ const BlogForm = ({ editing }) => {
 
   return (
     <div>
+      {/* <Toast toasts={toasts} deleteToast={deleteToast} /> */}
       <h1>{editing ? 'Edit' : 'Create'} a blog post</h1>
       <div className="mb-3">
         <label className="form-label">Title</label>
