@@ -3,15 +3,12 @@ import { useEffect, useState, useCallback } from "react";
 import Card from "../components/Card";
 import { useHistory } from "react-router";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { bool } from "prop-types";
 import Pagination from "./Pagination";
 import { useLocation } from "react-router-dom";
 import propTypes from 'prop-types';
-import Toast from "../components/Toast";
 import useToast from "../hooks/toasts";
 
 const BlogList = ({ isAdmin }) => {
-  const [toasts, addToast, deleteToast] = useToast();
   const history = useHistory();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -22,6 +19,8 @@ const BlogList = ({ isAdmin }) => {
   const [numberOfPosts, setNumberOfPosts] = useState(0);
   const [numberOfPages, setNumberOfPages] = useState(0);
   const [searchText, setSearchText] = useState('');
+  
+  const { addToast } = useToast();
   const limit = 5;
 
   useEffect(() => {
@@ -101,7 +100,6 @@ const BlogList = ({ isAdmin }) => {
 
   return (
     <div>
-      <Toast toasts={toasts} deleteToast={deleteToast} />
       <input type="text" placeholder="Search" className="form-control" value={searchText} onChange={(e) => setSearchText(e.target.value)} onKeyUp={onSearch} />
       <hr />
       {posts.length === 0 ? <div>No Blog Posts Found</div> :
