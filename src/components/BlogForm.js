@@ -4,10 +4,12 @@ import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
 import { bool } from "prop-types";
 import propTypes from 'prop-types';
+import useToast from "../hooks/toasts";
+import LoadingSpinner from "./LoadingSpinner";
 // import Toast from "../components/Toast";
 // import useToast from "../hooks/toasts";
 
-const BlogForm = ({ editing, addToast }) => {
+const BlogForm = ({ editing }) => {
   // const [toasts, addToast, deleteToast] = useToast();
   const history = useHistory();
   const { id } = useParams();
@@ -20,17 +22,32 @@ const BlogForm = ({ editing, addToast }) => {
   const [originalPublish, setOriginalPublish] = useState();
   const [titleError, setTitleError] = useState(false);
   const [textError, setTextError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const { addToast } = useToast();
 
   useEffect(() => {
     if(editing) {
-      axios.get(`http://localhost:3001/posts/${id}`).then((response) => {
+      axios.get(`http://localhost:3001/posts/${id}`)
+      .then((response) => {
         setTitle(response.data.title);
         setOriginalTitle(response.data.title);
         setText(response.data.text);
         setOriginalText(response.data.text);
         setPublish(response.data.publish);
         setOriginalPublish(response.data.publish);
+        setLoading(false);
       })
+      .catch(e => {
+        setError('Something went wrong In database');
+        addToast ({
+          text: 'Something went wrong In database',
+          type: 'danger'
+        })
+        setLoading(false);
+      })
+    } else {
+      setLoading(false);
     }
   }, [id, editing]);
 
@@ -73,9 +90,16 @@ const BlogForm = ({ editing, addToast }) => {
           title,
           text,
           publish
-        }).then((response) => {
-          // console.log(response);
+        })
+        .then((response) => {
+          console.log(response);
           history.push(`/blogs/${id}`)
+        })
+        .catch(e => {
+          addToast({
+            text: 'We could not Create Blog',
+            type: 'danger'
+          })
         })
       } else {
         axios.post("http://localhost:3001/posts", {
@@ -83,13 +107,20 @@ const BlogForm = ({ editing, addToast }) => {
           text: text,
           publish: publish,
           createAt: Date.now()
-        }).then(() => {
+        })
+        .then(() => {
           //블로그 생성 성공
           addToast({
             text: 'Successfully created!',
             type: 'success'
           })
           history.push("/admin");
+        })
+        .catch(e => {
+          addToast({
+            text: 'We could not Create Blog',
+            type: 'danger'
+          })
         })
       }
     }
@@ -99,6 +130,18 @@ const BlogForm = ({ editing, addToast }) => {
     // console.log(e.target.checked);
     setPublish(e.target.checked);
   };
+
+  if(loading) {
+    return <LoadingSpinner />
+  }
+
+  if(error) {
+    return (
+      <div>
+        {error}
+      </div>
+    )
+  }
 
   return (
     <div>

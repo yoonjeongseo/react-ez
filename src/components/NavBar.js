@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { login, logout } from "../store/authSlice";
 
 const NavBar = () => {
-  const isLoggeIn = useSelector(state => state.auth.isLoggeIn);
+  const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
   const dispatch = useDispatch();
 
   return (
@@ -13,16 +13,16 @@ const NavBar = () => {
         <ul className="navbar-nav" style={{flexDirection: 'row'}}>
           <li className="nav-item">
             <button className="text-white btn btn-link text-decoration-none" onClick={() => {
-              if (isLoggeIn) {
+              if (isLoggedIn) {
                 dispatch(logout());
               } else {
                 dispatch(login());
               }
-            }}>{isLoggeIn ? 'Logout' : 'Login'}</button>
+            }}>{isLoggedIn ? 'Logout' : 'Login'}</button>
           </li>
-          <li className="nav-item">
+          {isLoggedIn ? <li className="nav-item">
             <NavLink activeClassName="active" className="nav-link me-2" aria-current="page" to="/Admin">Admin</NavLink>
-          </li>
+          </li> : null}
           <li className="nav-item">
             <NavLink activeClassName="active" className="nav-link" aria-current="page" to="/blogs">Blogs</NavLink>
           </li>
